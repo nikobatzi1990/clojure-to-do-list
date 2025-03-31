@@ -1,7 +1,20 @@
 (ns db
   (:require [next.jdbc :as jdbc]
+            [clojure.pprint :as pp]
             [migratus.core :as migratus]
             [conman.core :as conman]))
+
+;; conman config
+(def datasource-options {:adapter "h2"
+                         :url     "jdbc:h2:~/to-do-list"})
+
+(def ds
+  (let [conn (conman/connect! datasource-options)]
+    conn))
+
+(pp/pprint ds)
+
+(conman/bind-connection "queries.sql")
 
 (def config {:store :database
              :migration-dir "resources/migrations"
@@ -11,28 +24,19 @@
                   :user "user"
                   :password "pass"}})
 
-(def db {:dbtype "h2" :dbname "to-do-list"})
-(def ds (jdbc/get-datasource db))
-
-(migratus/init config)
-
 (defn migrate []
   (migratus/migrate config))
 
-(def datasource-options {:adapter "h2"
-                         :url     "jdbc:h2:~/to-do-list"
-                         :username      "user"
-                         :password      "pass"})
+(migrate)
 
-(conman/connect! [datasource-options])
+(defn disconnect! [conn]
+  (conman/disconnect! conn))
 
 (defn create-migration [name]
   (migratus.core/create config name))
 
 (defn rollback-migration []
   (migratus/rollback config))
-
-(migrate)
 
 (migratus/pending-list config)
 
