@@ -5,3 +5,4 @@
 .nrepl-port
 .portal
 .shadow-cljs
+cljs-runtime

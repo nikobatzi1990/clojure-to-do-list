@@ -1,11 +1,23 @@
 (ns user
-  (:require [next.jdbc :as jdbc]
-            [clojure.pprint :as pp]))
+  (:require [ring.adapter.jetty :as jetty]))
 
-;; (jdbc/execute! {:datasource ds} ["insert into task(description)
-;;                                   values('do laundry')"])
+(defonce server (atom nil))
 
-;; (jdbc/execute! {:datasource ds} ["insert into task(description)
-;;                                   values('study Clojure')"])
+(defn app [req]
+  {:status 200 :body "Hello World!" :headers {"Content-Type" "text/html"}})
 
-;; (jdbc/execute! {:datasource ds} ["select * from task"])
+(defn start-server []
+  (reset! server
+          (jetty/run-jetty (fn [req] (app req))
+                           {:port 3001
+                            :join? false}))) 
+
+(defn stop-server []
+  (when-some [s @server]
+    (.stop s)
+    (reset! server nil)))
+
+(comment
+ (start-server)
+
+(stop-server))
