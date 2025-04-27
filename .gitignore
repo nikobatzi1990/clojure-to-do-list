@@ -4,3 +4,5 @@
 .lsp 
 .nrepl-port
 .portal
+.shadow-cljs
+public/js

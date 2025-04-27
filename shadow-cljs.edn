@@ -1,0 +1,6 @@
+{:deps true
+ :builds
+ {:frontend
+  {:target :browser
+   :modules {:main {:init-fn app.frontend.main/init}}
+   :devtools {:watch-dir "public"}}}}
