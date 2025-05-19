@@ -1,4 +1,5 @@
 (ns app.frontend.main)
 
 (defn init []
-  (println "Hello World AAAA!"))
+  (println "Hello World!"))
+(init)
