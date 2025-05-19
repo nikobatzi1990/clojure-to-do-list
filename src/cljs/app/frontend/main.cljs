@@ -2,3 +2,4 @@
 
 (defn init []
   (println "Hello World!"))
+(init)

@@ -1,4 +1,4 @@
-(ns clj.app.db
+(ns app.db
   (:require [migratus.core :as migratus]
             [conman.core :as conman]))
 

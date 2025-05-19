@@ -1,0 +1,19 @@
+{
+  "name": "clojure-to-do-list",
+  "version": "1.0.0",
+  "description": "A simple to do list application written with Clojure",
+  "homepage": "https://github.com/nikobatzi1990/clojure-to-do-list#readme",
+  "bugs": {
+    "url": "https://github.com/nikobatzi1990/clojure-to-do-list/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikobatzi1990/clojure-to-do-list.git"
+  },
+  "license": "ISC",
+  "author": "Nicole Boci",
+  "type": "commonjs",
+  "scripts": {
+    "test": "npm test"
+  }
+}

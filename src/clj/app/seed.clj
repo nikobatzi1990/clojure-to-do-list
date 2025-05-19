@@ -1,12 +1,12 @@
-;; (ns clj.app.seed
-;;   (:require [next.jdbc :as jdbc]
-;;             [clojure.pprint :as pp]
-;;             [db/ds :as ds]))
+(ns app.seed
+  (:require [next.jdbc :as jdbc]
+            ;; [clojure.pprint :as pp]
+            [app.db :as db]))
 
-;; (jdbc/execute! {:datasource ds} ["insert into task(description)
-;;                                   values('do laundry')"])
+(jdbc/execute! {:datasource db/ds} ["insert into task(description)
+                                  values('do laundry')"])
 
-;; (jdbc/execute! {:datasource ds} ["insert into task(description)
-;;                                   values('study Clojure')"])
+(jdbc/execute! {:datasource db/ds} ["insert into task(description)
+                                  values('study Clojure')"])
 
-;; (jdbc/execute! {:datasource ds} ["select * from task"])
+(jdbc/execute! {:datasource db/ds} ["select * from task"])
