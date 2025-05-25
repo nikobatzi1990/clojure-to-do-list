@@ -19,11 +19,7 @@
                  [:link {:rel "stylesheet" :href "/public/css/styles.css"}]] 
                 [:body 
                  [:h1 "To-Do List"]
-                 [:p "Welcome to the Clojure To-Do List web application."]
-                 [:form {:method "get" :action "/"}
-                  [:label {:for "task-input"} "New Task: "]
-                  [:input#task-input {:type "text" :name "task" :value query-string}]
-                  [:button {:type "submit"} "+"]]]]))})
+                 [:p "Welcome to the Clojure To-Do List web application."]]]))})
 
 (def handler
   (->
