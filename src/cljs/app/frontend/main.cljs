@@ -1,4 +1,5 @@
-(ns app.frontend.main)
+(ns app.frontend.main
+  (:require [app.frontend.add.views :as add]))
 
 (defn init []
   (println "Hello World!"))

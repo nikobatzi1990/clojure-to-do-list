@@ -6,8 +6,4 @@
   [:form {:method "get" :action "/"}
    [:label {:for "task-input"} "New Task: "]
    [:input#task-input {:type "text" :name "task" :value query-string}]
-   [:button {:type "submit"} "+"]]
-  )
-
-(defn add-task [_req]
-  (pp/pprint "Task Added!"))
+   [:button {:type "submit"} "+"]])
