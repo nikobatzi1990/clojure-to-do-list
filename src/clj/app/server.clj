@@ -15,8 +15,8 @@
                [:html 
                 [:head
                  [:title "To-Do List"]
-                 [:script {:src "/public/js/main.js"}]
-                 [:link {:rel "stylesheet" :href "/public/css/styles.css"}]] 
+                 [:script {:src "/js/main.js"}]
+                 [:link {:rel "stylesheet" :href "/css/styles.css"}]] 
                 [:body 
                  [:h1 "To-Do List"]
                  [:p "Welcome to the Clojure To-Do List web application."]]]))})
