@@ -9,10 +9,15 @@
                        ["select * from task"])]
     {:status 200
      :headers {"Content-Type" "text/html"}
-     :body (str (h/html [:div
-                         [:ul
-                          (for [task task-list]
-                            [:li (:description task)])]]))}))
+     :body (str (h/html   [:html
+                         [:head
+                          [:title "To-Do List"]
+                          [:link {:rel "stylesheet" :href "/css/styles.css"}]]
+                         [:body
+                          [:div#app
+                           [:h1 "To-Do List"]
+                           [:p "Welcome to the Clojure To-Do List web application."]]
+                          [:script {:src "/js/main.js"}]]]))}))
 
 (defn save-task [req]
   (let [task (get-in req [:params :task])]
