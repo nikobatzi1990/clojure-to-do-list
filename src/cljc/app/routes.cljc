@@ -15,20 +15,26 @@
                   :controllers [{:start #(js/console.log "Welcome to Clojure To-Do List!")
                                  :stop #(js/console.log "Goodbye from Clojure To-Do List!")}]}
             :clj {:no-doc true
-                  :get #'handlers/task-list}))]
+                  :get #'handlers/main-ui}))]
    ["add" (merge
            {:name :app/add}
            #?(:cljs {:view add/task-input
                      :controllers [{:start #(js/console.log "Adding task...")
                                     :stop #(js/console.log "Stopped adding task...")}]}
              :clj {:no-doc true
-                   :get #'handlers/task-list}))]
+                   :get #'handlers/main-ui}))]
    
    #?@(:clj
        [["api"
          ["" {:no-doc true}
            ["/swagger.json" {:get (swagger/create-swagger-handler)}]
            ["/api-docs/*" {:get (swagger-ui/create-swagger-ui-handler {:url "/api/swagger.json"})}]]
+         "task-list"
+         {:name :api/task-list 
+          :summary "Gets task list from database"
+          :coercion rcs/coercion
+          :get {:responses {200 {:body {:tasks vector?}}}
+                :handler #'handlers/task-list}}
          
          "/add-task"
          {:name :api/add-task

@@ -3,13 +3,10 @@
             [next.jdbc :as jdbc]
             [hiccup2.core :as h]))
 
-(defn task-list [req]
-  (let [task-list 
-        (jdbc/execute! db/ds 
-                       ["select * from task"])]
-    {:status 200
-     :headers {"Content-Type" "text/html"}
-     :body (str (h/html   [:html
+(defn main-ui [req]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str (h/html   [:html
                          [:head
                           [:title "To-Do List"]
                           [:link {:rel "stylesheet" :href "/css/styles.css"}]]
@@ -17,7 +14,15 @@
                           [:div#app
                            [:h1 "To-Do List"]
                            [:p "Welcome to the Clojure To-Do List web application."]]
-                          [:script {:src "/js/main.js"}]]]))}))
+                          [:script {:src "/js/main.js"}]]]))})
+
+(defn task-list [req]
+  (let [task-list
+        (jdbc/execute! db/ds 
+                       ["select * from task"])]
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body {:tasks task-list}}))
 
 (defn save-task [req]
   (let [task (get-in req [:params :task])]
