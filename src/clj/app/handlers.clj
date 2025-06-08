@@ -3,7 +3,7 @@
             [next.jdbc :as jdbc]
             [hiccup2.core :as h]))
 
-(defn task-list [_ req]
+(defn task-list [req]
   (let [task-list 
         (jdbc/execute! db/ds 
                        ["select * from task"])]
