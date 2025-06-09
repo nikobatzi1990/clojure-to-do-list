@@ -10,27 +10,27 @@
  (fn [_ _]     
    {:tasks nil}))
 
-(rf/reg-event-fx
- :tasks/get-task-list
- (fn [{:keys [db]} _]
-   {:db (assoc db :loading? true)
-    :http-xhrio {:method          :get
-                 :uri             "/api/task-list"
-                 :format          (ajax/json-request-format)
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/list-fetched]
-                 :on-failure      [:tasks/failed]}}))
-
 (rf/reg-event-db
  :tasks/list-fetched
- (fn [db [_ {:keys [tasks]}]]
-   (pp/pprint (assoc db :tasks tasks :loading? false))
+ (fn [db [_ {tasks :tasks}]]
+   (js/console.log tasks)
    (assoc db :tasks tasks :loading? false)))
 
 (rf/reg-event-fx
  :tasks/failed
  (fn [_ [_ error]]
    (pp/pprint error)))
+
+(rf/reg-event-fx
+ :tasks/get-task-list
+ (fn [{:keys [db]} _]
+   {:http-xhrio {:method          :get
+                 :uri             "/api/task-list"
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:tasks/list-fetched]
+                 :on-failure      [:tasks/failed]}
+    :db (assoc db :loading? true :tasks nil)}))
 
 
 ;;;;;;;;;;;;;;;;;;
