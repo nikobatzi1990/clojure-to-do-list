@@ -8,12 +8,46 @@
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [muuntaja.core :as m]
    [reitit.ring.coercion :as rrc]
-   [app.routes :as routes]))
+
+   [app.handlers :as handlers]
+   [reitit.coercion.spec :as rcs]
+   [reitit.swagger :as swagger]
+   [reitit.swagger-ui :as swagger-ui]))
+
+(def routes
+  ["/"
+   ["" (merge
+        {:name :app/main}
+        {:no-doc true
+         :get #'handlers/main-ui})]
+   ["add" (merge
+           {:name :app/add}
+           {:no-doc true
+            :get #'handlers/main-ui})]
+   ["api"
+    ["" {:no-doc true}
+     ["/swagger.json" {:get (swagger/create-swagger-handler)}]
+     ["/api-docs/*" {:get (swagger-ui/create-swagger-ui-handler {:url "/api/swagger.json"})}]]
+
+    ["task-list"
+     {:name :api/task-list
+      :summary "Gets task list from database"
+      :coercion rcs/coercion
+      :get {:responses {200 {:body {:tasks vector?}}}
+            :handler #'handlers/task-list}}]
+
+    ["/add-task"
+     {:name :api/add-task
+      :summary "Adds a new task to To-Do List"
+      :coercion rcs/coercion
+      :post {:parameters {:body {:task string?}}
+             :responses {200 {:body {:result string?}}}
+             :handler #'handlers/save-task}}]]])
 
 (def app
   (ring/ring-handler
    (ring/router
-    routes/routes
+    routes
     {:data {:muuntaja m/instance
             :middleware [params/wrap-params
                          muuntaja/format-middleware
