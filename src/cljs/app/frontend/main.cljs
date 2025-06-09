@@ -13,7 +13,8 @@
 (rf/reg-event-fx
  :tasks/get-task-list
  (fn [{:keys [db]} _]
-   {:http-xhrio {:method          :get
+   {:db (assoc db :loading? true)
+    :http-xhrio {:method          :get
                  :uri             "/api/task-list"
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
@@ -23,8 +24,8 @@
 (rf/reg-event-db
  :tasks/list-fetched
  (fn [db [_ {:keys [tasks]}]]
-   (pp/pprint tasks)
-   (assoc db :tasks tasks)))
+   (pp/pprint (assoc db :tasks tasks :loading? false))
+   (assoc db :tasks tasks :loading? false)))
 
 (rf/reg-event-fx
  :tasks/failed
