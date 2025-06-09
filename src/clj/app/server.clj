@@ -29,7 +29,7 @@
      ["/swagger.json" {:get (swagger/create-swagger-handler)}]
      ["/api-docs/*" {:get (swagger-ui/create-swagger-ui-handler {:url "/api/swagger.json"})}]]
 
-    ["task-list"
+    ["/task-list"
      {:name :api/task-list
       :summary "Gets task list from database"
       :coercion rcs/coercion

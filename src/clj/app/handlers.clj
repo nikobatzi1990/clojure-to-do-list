@@ -21,7 +21,6 @@
         (jdbc/execute! db/ds 
                        ["select * from task"])]
     {:status 200
-     :headers {"Content-Type" "application/json"}
      :body {:tasks task-list}}))
 
 (defn save-task [req]
@@ -29,5 +28,4 @@
     (jdbc/execute! db/ds
                    ["insert into task (description) values (?)" task])
     {:status 200
-     :headers {"Content-Type" "application/json"}
      :body {:message "Task saved!"}}))
