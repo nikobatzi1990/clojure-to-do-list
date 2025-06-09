@@ -3,7 +3,7 @@
             [next.jdbc :as jdbc]
             [hiccup2.core :as h]))
 
-(defn main-ui [req]
+(defn main-ui [_req]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str (h/html   [:html
@@ -16,7 +16,7 @@
                            [:p "Welcome to the Clojure To-Do List web application."]]
                           [:script {:src "/js/main.js"}]]]))})
 
-(defn task-list [req]
+(defn task-list [_req]
   (let [task-list
         (jdbc/execute! db/ds 
                        ["select * from task"])]
