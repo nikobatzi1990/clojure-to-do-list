@@ -37,6 +37,7 @@
 (rf/reg-event-fx
  :tasks/submit-task
  (fn [{:keys [db]} [_ task]]
+   (js/console.log task)
    {:db (assoc db :task task)
     :http-xhrio {:method          :post
                  :uri             "/api/add-task"
@@ -71,18 +72,18 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defn task-input []
-  (let [task @(rf/subscribe [:tasks/new-task])]
-    [:form
-     {:on-submit (fn [e]
-                   (.preventDefault e)
-                   (rf/dispatch [:tasks/submit-task task]))}
-     [:label {:for "task-input"} "New Task: "]
-     [:input#task-input
-      {:type "text"
-       :name "task"
-       :value task
-       :on-change #(rf/dispatch [:tasks/update-task (-> % .-target .-value)])}]
-     [:button {:type "submit"} "+"]]))
+  #_ (let [task (r/atom nil)])
+  [:form
+   {:on-submit (fn [e]
+                 (.preventDefault e))}
+   [:label {:for "task-input"} "New Task: "]
+   [:input#task-input
+    {:type "text"
+     :name "task"
+     ;:value @task
+     #_#_:on-change #(reset! task (-> % .-target .-value))}]
+   [:button {:type "submit"
+             :on-click #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])} "+"]])
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]

@@ -41,7 +41,7 @@
       :summary "Adds a new task to To-Do List"
       :coercion rcs/coercion
       :post {:parameters {:body {:task string?}}
-             :responses {200 {:body {:result string?}}}
+             :responses {200 {:body {:message string?}}}
              :handler #'handlers/save-task}}]]])
 
 (def app

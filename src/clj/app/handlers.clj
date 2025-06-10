@@ -24,7 +24,7 @@
      :body {:tasks task-list}}))
 
 (defn save-task [req]
-  (let [task (get-in req [:params :task])]
+  (let [task (get-in req [:parameters :body :task])]
     (jdbc/execute! db/ds
                    ["insert into task (description) values (?)" task])
     {:status 200
