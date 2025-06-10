@@ -34,14 +34,55 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :tasks nil :loading? true)}))
 
+(rf/reg-event-fx
+ :tasks/submit-task
+ (fn [{:keys [db]} [_ task]]
+   {:db (assoc db :task task)
+    :http-xhrio {:method          :post
+                 :uri             "/api/add-task"
+                 :params          {:task task}
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:tasks/task-saved]
+                 :on-failure      [:tasks/failed]}}))
+
+(rf/reg-event-db
+ :tasks/task-saved
+ (fn [db _]
+   db))
+
+(rf/reg-event-db
+ :tasks/update-task
+ (fn [db [_ value]]
+   (assoc db :tasks/new value)))
+
 (rf/reg-sub
  :tasks/all-tasks
  (fn [db _]
    (get db :tasks [])))
 
+(rf/reg-sub
+ :tasks/new-task
+ (fn [db _]
+   (get db :tasks/new "")))
+
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
+
+(defn task-input []
+  (let [task @(rf/subscribe [:tasks/new-task])]
+    [:form
+     {:on-submit (fn [e]
+                   (.preventDefault e)
+                   (rf/dispatch [:tasks/submit-task task]))}
+     [:label {:for "task-input"} "New Task: "]
+     [:input#task-input
+      {:type "text"
+       :name "task"
+       :value task
+       :on-change #(rf/dispatch [:tasks/update-task (-> % .-target .-value)])}]
+     [:button {:type "submit"} "+"]]))
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
@@ -53,6 +94,7 @@
 (defn main-ui []
   [:div "Hello World!"
    [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Reload tasks"]]
+   [:div [task-input]]
    [:div [tasks-ui]]
    ])
 
