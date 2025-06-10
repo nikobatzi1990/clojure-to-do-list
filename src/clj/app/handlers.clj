@@ -1,6 +1,7 @@
 (ns app.handlers
   (:require [app.db :as db]
             [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]
             [hiccup2.core :as h]))
 
 (defn main-ui [_req]
@@ -19,7 +20,8 @@
 (defn task-list [_req]
   (let [task-list
         (jdbc/execute! db/ds 
-                       ["select * from task"])]
+                       ["select * from task"]
+                       {:builder-fn rs/as-lower-maps})]
     {:status 200
      :body {:tasks task-list}}))
 

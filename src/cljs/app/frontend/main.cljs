@@ -90,7 +90,7 @@
     [:div
      [:ul
       (for [task tasks]
-        ^{:key (gensym (:TASK/ID task))} [:li (:TASK/DESCRIPTION task)])]]))
+        ^{:key (gensym (:task/id task))} [:li (:task/description task)])]]))
 
 (defn main-ui []
   [:div "Hello World!"
