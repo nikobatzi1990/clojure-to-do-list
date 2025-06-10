@@ -5,11 +5,13 @@
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]))
 
-(rf/reg-event-db
- :initialize-db
- (fn [_ _]     
-   {:tasks nil
-    :loading? true}))
+(rf/reg-event-fx
+ :initialize-app
+ (fn [_ _]
+   {:fx [[:dispatch [:tasks/get-task-list]]]
+    :db
+    {:tasks nil
+     :loading? true}}))
 
 (rf/reg-event-db
  :tasks/list-fetched
@@ -61,6 +63,6 @@
   (rdc/render app-root [main-ui]))
 
 (defn init []
-  (rf/dispatch-sync [:tasks/get-task-list])
+  (rf/dispatch-sync [:initialize-app])
   (rf/clear-subscription-cache!)
   (mount-ui))
