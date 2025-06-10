@@ -8,12 +8,12 @@
 (rf/reg-event-db
  :initialize-db
  (fn [_ _]     
-   {:tasks nil}))
+   {:tasks nil
+    :loading? true}))
 
 (rf/reg-event-db
  :tasks/list-fetched
  (fn [db [_ {tasks :tasks}]]
-   (js/console.log tasks)
    (assoc db :tasks tasks :loading? false)))
 
 (rf/reg-event-fx
@@ -30,17 +30,28 @@
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:tasks/list-fetched]
                  :on-failure      [:tasks/failed]}
-    :db (assoc db :loading? true :tasks nil)}))
+    :db (assoc db :tasks nil :loading? true)}))
 
+(rf/reg-sub
+ :tasks/all-tasks
+ (fn [db _]
+   (get db :tasks [])))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
 
+(defn tasks-ui []
+  (let [tasks @(rf/subscribe [:tasks/all-tasks])]
+    [:div
+     [:ul
+      (for [task tasks]
+        ^{:key (gensym (:TASK/ID task))} [:li (:TASK/DESCRIPTION task)])]]))
 
 (defn main-ui []
   [:div "Hello World!"
-   [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Load tasks"]]
+   [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Reload tasks"]]
+   [:div [tasks-ui]]
    ])
 
 (defonce app-root
@@ -50,6 +61,6 @@
   (rdc/render app-root [main-ui]))
 
 (defn init []
-  (rf/dispatch-sync [:initialize-db])
+  (rf/dispatch-sync [:tasks/get-task-list])
   (rf/clear-subscription-cache!)
   (mount-ui))
