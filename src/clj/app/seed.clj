@@ -1,6 +1,5 @@
 (ns app.seed
-  (:require [next.jdbc :as jdbc]
-            ;; [clojure.pprint :as pp]
+  (:require [next.jdbc :as jdbc] 
             [app.db :as db]))
 
 (jdbc/execute! {:datasource db/ds} ["insert into task(description)
