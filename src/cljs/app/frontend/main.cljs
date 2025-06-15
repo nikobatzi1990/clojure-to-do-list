@@ -72,18 +72,13 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defn task-input []
-  #_ (let [task (r/atom nil)])
   [:form
-   {:on-submit (fn [e]
-                 (.preventDefault e))}
+   {:on-submit #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])}
    [:label {:for "task-input"} "New Task: "]
    [:input#task-input
     {:type "text"
-     :name "task"
-     ;:value @task
-     #_#_:on-change #(reset! task (-> % .-target .-value))}]
-   [:button {:type "submit"
-             :on-click #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])} "+"]])
+     :name "task"}]
+   [:button {:type "submit"} "+"]])
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
@@ -93,8 +88,8 @@
         ^{:key (gensym (:task/id task))} [:li (:task/description task)])]]))
 
 (defn main-ui []
-  [:div "Hello World!"
-   [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Reload tasks"]]
+  [:div
+   [:h1 "To-Do List"]
    [:div [task-input]]
    [:div [tasks-ui]]
    ])

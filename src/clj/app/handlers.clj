@@ -10,11 +10,15 @@
    :body (str (h/html   [:html
                          [:head
                           [:title "To-Do List"]
-                          [:link {:rel "stylesheet" :href "/css/styles.css"}]]
-                         [:body
-                          [:div#app
-                           [:h1 "To-Do List"]
-                           [:p "Welcome to the Clojure To-Do List web application."]]
+                          [:meta {:charset "UTF-8"}]
+                          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
+                          [:link {:rel "stylesheet" :href "/css/styles.css"}]
+                          [:link {:rel "preconnect" :href "https://fonts.googleapis.com"}]
+                          [:link {:rel "preconnect" :href "https://fonts.gstatic.com" :crossorigin "true"}]
+                          [:link {:href "https://fonts.googleapis.com/css2?family=Huninn&display=swap"
+                                  :rel "stylesheet"}]]
+                         [:body.huninn-regular
+                          [:div#app]
                           [:script {:src "/js/main.js"}]]]))})
 
 (defn task-list [_req]
