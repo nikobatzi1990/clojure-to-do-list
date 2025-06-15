@@ -91,7 +91,9 @@
         ^{:key (gensym (:task/id task))} [:li (:task/description task)])]]))
 
 (defn main-ui []
-  [:div "Hello World!"
+  [:div
+   [:h1 "To-Do List"]
+  ;;  [:p "Welcome to the Clojure To-Do List web application."]
    [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Reload tasks"]]
    [:div [task-input]]
    [:div [tasks-ui]]
