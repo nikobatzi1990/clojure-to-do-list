@@ -72,15 +72,12 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defn task-input []
-  #_ (let [task (r/atom nil)])
   [:form
    {:on-submit #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])}
    [:label {:for "task-input"} "New Task: "]
    [:input#task-input
     {:type "text"
-     :name "task"
-     ;:value @task
-     #_#_:on-change #(reset! task (-> % .-target .-value))}]
+     :name "task"}]
    [:button {:type "submit"} "+"]])
 
 (defn tasks-ui []
@@ -93,8 +90,6 @@
 (defn main-ui []
   [:div
    [:h1 "To-Do List"]
-  ;;  [:p "Welcome to the Clojure To-Do List web application."]
-   [:p [:button {:on-click #(rf/dispatch [:tasks/get-task-list])} "Reload tasks"]]
    [:div [task-input]]
    [:div [tasks-ui]]
    ])
