@@ -52,20 +52,28 @@
  (fn [db _]
    db))
 
+(rf/reg-event-fx
+ :tasks/delete-task
+ (fn [{:keys [db]} [_ task]]
+   (js/console.log "Task deleted:" task)
+   {:db (assoc db :task task)
+    :http-xhrio {:method          :delete
+                 :uri             "/api/delete-task"
+                 :params          {:task-id (:task/id task)}
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:tasks/task-deleted]
+                 :on-failure      [:tasks/failed]}}))
+
 (rf/reg-event-db
- :tasks/update-task
- (fn [db [_ value]]
-   (assoc db :tasks/new value)))
+ :tasks/task-deleted
+ (fn [db _]
+   db))
 
 (rf/reg-sub
  :tasks/all-tasks
  (fn [db _]
    (get db :tasks [])))
-
-(rf/reg-sub
- :tasks/new-task
- (fn [db _]
-   (get db :tasks/new "")))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -85,14 +93,14 @@
     [:div
      [:ul
       (for [task tasks]
-        ^{:key (gensym (:task/id task))} [:li (:task/description task)])]]))
+        ^{:key (:task/id task)} 
+        [:li {:id (:task/id task)} (:task/description task)])]]))
 
 (defn main-ui []
   [:div
    [:h1 "To-Do List"]
    [:div [task-input]]
-   [:div [tasks-ui]]
-   ])
+   [:div [tasks-ui]]])
 
 (defonce app-root
   (rdc/create-root (js/document.getElementById "app")))
