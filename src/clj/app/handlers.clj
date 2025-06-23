@@ -35,3 +35,6 @@
                    ["insert into task (description) values (?)" task])
     {:status 200
      :body {:message "Task saved!"}}))
+
+(defn delete-task [req]
+  )

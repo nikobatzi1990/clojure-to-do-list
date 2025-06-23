@@ -42,7 +42,15 @@
       :coercion rcs/coercion
       :post {:parameters {:body {:task string?}}
              :responses {200 {:body {:message string?}}}
-             :handler #'handlers/save-task}}]]])
+             :handler #'handlers/save-task}}]
+    
+    ["/delete-task"
+     {:name :api/delete-task
+      :summary "Deletes a task from To-Do List"
+      :coercion rcs/coercion
+      :delete {:parameters {:body {:task-id int?}}
+               :responses {200 {:body {:message string?}}}
+               :handler #'handlers/delete-task}}]]])
 
 (def app
   (ring/ring-handler
