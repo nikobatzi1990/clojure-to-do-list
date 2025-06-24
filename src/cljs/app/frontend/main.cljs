@@ -54,12 +54,11 @@
 
 (rf/reg-event-fx
  :tasks/delete-task
- (fn [{:keys [db]} [_ task]]
-   (js/console.log "Task deleted:" task)
-   {:db (assoc db :task task)
-    :http-xhrio {:method          :delete
+ (fn [{:keys [db]} [_ task-id]]
+   (js/console.log "Task deleted:" task-id)
+   {:http-xhrio {:method          :delete
                  :uri             "/api/delete-task"
-                 :params          {:task-id (:task/id task)}
+                 :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:tasks/task-deleted]
@@ -88,9 +87,9 @@
      :name "task"}]
    [:button {:type "submit"} "+"]])
 
-(defn delete-ui []
+(defn delete-button [task-id]
   [:form
-   {:on-submit #(rf/dispatch [:tasks/delete-task])}
+   {:on-submit #(rf/dispatch [:tasks/delete-task task-id])}
    [:button {:type "submit"} "Delete Task"]])
 
 (defn tasks-ui []
@@ -99,7 +98,9 @@
      [:ul
       (for [task tasks]
         ^{:key (:task/id task)} 
-        [:li {:id (:task/id task)} (:task/description task) [delete-ui]])]]))
+        [:li {:id (:task/id task)} 
+         (:task/description task) 
+         [delete-button (:task/id task)]])]]))
 
 (defn main-ui []
   [:div
