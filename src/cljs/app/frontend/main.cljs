@@ -88,19 +88,24 @@
      :name "task"}]
    [:button {:type "submit"} "+"]])
 
+(defn delete-ui []
+  [:form
+   {:on-submit #(rf/dispatch [:tasks/delete-task])}
+   [:button {:type "submit"} "Delete Task"]])
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div
      [:ul
       (for [task tasks]
         ^{:key (:task/id task)} 
-        [:li {:id (:task/id task)} (:task/description task)])]]))
+        [:li {:id (:task/id task)} (:task/description task) [delete-ui]])]]))
 
 (defn main-ui []
   [:div
    [:h1 "To-Do List"]
    [:div [task-input]]
-   [:div [tasks-ui]]])
+   [tasks-ui]])
 
 (defonce app-root
   (rdc/create-root (js/document.getElementById "app")))
