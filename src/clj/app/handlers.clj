@@ -37,4 +37,8 @@
      :body {:message "Task saved!"}}))
 
 (defn delete-task [req]
-  )
+  (let [task (get-in req [:parameters :body :task-id])]
+    (jdbc/execute! db/ds
+                   ["delete from task where id = ?" task])
+    {:status 200
+     :body {:message "Task deleted!"}}))
