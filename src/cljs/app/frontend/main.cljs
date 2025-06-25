@@ -81,32 +81,33 @@
 (defn task-input []
   [:form
    {:on-submit #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])}
-   [:label {:for "task-input"} "New Task: "]
+   [:label.label {:for "task-input"} "New Task: "]
    [:input#task-input
     {:type "text"
-     :name "task"}]
-   [:button {:type "submit"} "+"]])
+     :name "task"
+     :class "input"}]
+   [:button.button {:type "submit"} "+"]])
 
 (defn delete-button [task-id]
   [:form
    {:on-submit #(rf/dispatch [:tasks/delete-task task-id])}
-   [:button {:type "submit"} "Delete Task"]])
+   [:button.delete {:type "submit"}]])
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
-    [:div.tasks
-     [:ul
+    [:div {:class "is-flex"}
+     [:ul.grid
       (for [task tasks]
         ^{:key (:task/id task)} 
-        [:li {:id (:task/id task)} 
-         [:div.task
-          (:task/description task) 
-          [delete-button (:task/id task)]]])]]))
+        [:li.is-flex {:id (:task/id task)}
+         (:task/description task) 
+         [delete-button (:task/id task)]])]]))
 
 (defn main-ui []
-  [:div
-   [:h1 "To-Do List"]
-   [:div [task-input]]
+  [:div.container
+   [:h1.title "To-Do List"]
+   [:div.level 
+    [task-input]]
    [tasks-ui]])
 
 (defonce app-root
