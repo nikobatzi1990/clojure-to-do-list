@@ -37,7 +37,6 @@
 (rf/reg-event-fx
  :tasks/submit-task
  (fn [{:keys [db]} [_ task]]
-   (js/console.log task)
    {:db (assoc db :task task)
     :http-xhrio {:method          :post
                  :uri             "/api/add-task"
@@ -47,15 +46,15 @@
                  :on-success      [:tasks/task-saved]
                  :on-failure      [:tasks/failed]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :tasks/task-saved
  (fn [db _]
+   (js/console.log "Task saved!")
    db))
 
 (rf/reg-event-fx
  :tasks/delete-task
- (fn [{:keys [db]} [_ task-id]]
-   (js/console.log "Task deleted:" task-id)
+ (fn [{:keys [db]} [_ task-id]] 
    {:http-xhrio {:method          :delete
                  :uri             "/api/delete-task"
                  :params          {:task-id task-id}
@@ -64,14 +63,15 @@
                  :on-success      [:tasks/task-deleted]
                  :on-failure      [:tasks/failed]}}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :tasks/task-deleted
  (fn [db _]
+   (js/console.log "Task deleted!")
    db))
 
 (rf/reg-sub
  :tasks/all-tasks
- (fn [db _]
+ (fn [db _] 
    (get db :tasks [])))
 
 ;;;;;;;;;;;;;;;;;;
