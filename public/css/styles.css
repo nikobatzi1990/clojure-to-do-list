@@ -7,3 +7,12 @@ body {
   font-weight: 400;
   font-style: normal;
 }
+
+.tasks {
+  margin: 2rem;
+}
+
+.task {
+  display: flex;
+  gap: .5rem;
+}

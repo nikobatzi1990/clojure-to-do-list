@@ -94,13 +94,14 @@
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
-    [:div
+    [:div.tasks
      [:ul
       (for [task tasks]
         ^{:key (:task/id task)} 
         [:li {:id (:task/id task)} 
-         (:task/description task) 
-         [delete-button (:task/id task)]])]]))
+         [:div.task
+          (:task/description task) 
+          [delete-button (:task/id task)]]])]]))
 
 (defn main-ui []
   [:div
