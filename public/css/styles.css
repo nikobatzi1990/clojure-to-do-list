@@ -11,8 +11,3 @@ body {
 .tasks {
   margin: 2rem;
 }
-
-.task {
-  display: flex;
-  gap: .5rem;
-}
