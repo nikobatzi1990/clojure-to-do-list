@@ -48,9 +48,8 @@
 
 (rf/reg-event-fx
  :tasks/task-saved
- (fn [db _]
-   (js/console.log "Task saved!")
-   db))
+ (fn []
+   (js/console.log "Task saved!")))
 
 (rf/reg-event-fx
  :tasks/delete-task
@@ -60,14 +59,19 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/task-deleted]
-                 :on-failure      [:tasks/failed]}}))
+                 :on-success      [:tasks/task-deleted {:task-id task-id}]
+                 :on-failure      [:tasks/failed]}
+    :db (assoc db :loading? true)}))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  :tasks/task-deleted
- (fn [db _]
-   (js/console.log "Task deleted!")
-   db))
+ (fn [db [_ {:keys [task-id]}]]
+   (-> db
+       (update :tasks
+               (fn [tasks]
+                 (filterv (fn [task]
+                            (not= (:task/id task) task-id)) tasks)))
+       (assoc :loading? false))))
 
 (rf/reg-sub
  :tasks/all-tasks
@@ -88,20 +92,19 @@
    [:button {:type "submit"} "+"]])
 
 (defn delete-button [task-id]
-  [:form
-   {:on-submit #(rf/dispatch [:tasks/delete-task task-id])}
-   [:button {:type "submit"} "Delete Task"]])
+  [:button {:type "button" 
+            :on-click #(rf/dispatch [:tasks/delete-task task-id])} "Delete Task"])
 
-(defn tasks-ui []
-  (let [tasks @(rf/subscribe [:tasks/all-tasks])]
-    [:div.tasks
-     [:ul
-      (for [task tasks]
-        ^{:key (:task/id task)} 
-        [:li {:id (:task/id task)} 
-         [:div.task
-          (:task/description task) 
-          [delete-button (:task/id task)]]])]]))
+  (defn tasks-ui []
+    (let [tasks @(rf/subscribe [:tasks/all-tasks])]
+      [:div.tasks
+       [:ul
+        (for [task tasks]
+          ^{:key (:task/id task)} 
+          [:li {:id (:task/id task)} 
+           [:div.task
+            (:task/description task) 
+            [delete-button (:task/id task)]]])]]))
 
 (defn main-ui []
   [:div
