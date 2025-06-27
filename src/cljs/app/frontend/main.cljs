@@ -86,15 +86,16 @@
   [:form
    {:on-submit #(rf/dispatch [:tasks/submit-task (-> "task-input" js/document.getElementById .-value)])}
    [:label.label {:for "task-input"} "New Task: "]
-   [:input#task-input
-    {:type "text"
-     :name "task"
-     :class "input"}]
-   [:button.button {:type "submit"} "+"]])
+   [:div {:class "is-flex"}
+    [:input#task-input
+     {:type "text"
+      :name "task"
+      :class "input"}]
+    [:button.button {:type "submit"} "+"]]])
 
 (defn delete-button [task-id]
-  [:button {:type "button" 
-            :on-click #(rf/dispatch [:tasks/delete-task task-id])} "Delete Task"])
+  [:button.delete {:type "button" 
+            :on-click #(rf/dispatch [:tasks/delete-task task-id])}])
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
