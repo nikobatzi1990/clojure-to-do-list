@@ -73,6 +73,24 @@
                             (not= (:task/id task) task-id)) tasks)))
        (assoc :loading? false))))
 
+(rf/reg-event-fx
+ :tasks/complete-task
+ (fn [{:keys [db]} [_ task-id]]
+   {:http-xhrio {:method          :patch
+                 :uri             "/api/complete-task"
+                 :params          {:task-id task-id}
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:tasks/toggle-completed {:task-id task-id}]
+                 :on-failure      [:tasks/failed]}
+    :db (assoc db :loading? true)}))
+
+(rf/reg-event-db
+ :tasks/toggle-completed
+ (fn [db [_ {:keys [task-id]}]]
+   (for [[key value](:tasks db)]
+     (print key value))))
+
 (rf/reg-sub
  :tasks/all-tasks
  (fn [db _] 
@@ -107,7 +125,7 @@
          [:label.is-flex {:style {:gap "0.5rem"}}
           [:input {:type "checkbox"
                    :checked (:task/completed task)
-                   :on-change #(rf/dispatch [:tasks/toggle-completed (:task/id task)])}]
+                   :on-change #(rf/dispatch [:tasks/complete-task (:task/id task)])}]
           (:task/description task)]
          [delete-button (:task/id task)]])]]))
 

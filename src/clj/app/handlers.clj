@@ -43,3 +43,10 @@
                    ["delete from task where id = ?" task])
     {:status 200
      :body {:message "Task deleted!"}}))
+
+(defn complete-task [req]
+  (let [task (get-in req [:parameters :body :task-id])]
+    (jdbc/execute! db/ds
+                   ["update task set completed = ? where id = ?" true task])
+    {:status 200
+     :body {:message "Task completed!"}}))

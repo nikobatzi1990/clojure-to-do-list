@@ -44,6 +44,14 @@
              :responses {200 {:body {:message string?}}}
              :handler #'handlers/save-task}}]
     
+    ["/complete-task"
+     {:name :api/complete-task
+      :summary "Completes a task on To-Do List"
+      :coercion rcs/coercion
+      :patch {:parameters {:body {:task-id int?}}
+              :responses {200 {:body {:message string?}}}
+              :handler #'handlers/complete-task}}]
+    
     ["/delete-task"
      {:name :api/delete-task
       :summary "Deletes a task from To-Do List"
