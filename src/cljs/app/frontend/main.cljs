@@ -102,9 +102,13 @@
     [:div {:class "is-flex"}
      [:ul.grid
       (for [task tasks]
-        ^{:key (:task/id task)} 
+        ^{:key (:task/id task)}
         [:li.is-flex {:id (:task/id task)}
-         (:task/description task) 
+         [:label.is-flex {:style {:gap "0.5rem"}}
+          [:input {:type "checkbox"
+                   :checked (:task/completed task)
+                   :on-change #(rf/dispatch [:tasks/toggle-completed (:task/id task)])}]
+          (:task/description task)]
          [delete-button (:task/id task)]])]]))
 
 (defn main-ui []
