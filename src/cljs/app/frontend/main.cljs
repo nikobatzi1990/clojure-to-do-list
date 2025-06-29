@@ -88,7 +88,15 @@
 (rf/reg-event-db
  :tasks/toggle-completed
  (fn [db [_ {:keys [task-id]}]]
-   task-id))
+   (-> db
+       (update :tasks
+               (fn [tasks]
+                 (mapv (fn [task]
+                         (if (= (:task/id task) task-id)
+                           (update task :task/completed not)
+                           task))
+                       tasks)))
+       (assoc :loading? false))))
 
 (rf/reg-sub
  :tasks/all-tasks
