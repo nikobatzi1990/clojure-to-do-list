@@ -43,3 +43,15 @@
                    ["delete from task where id = ?" task])
     {:status 200
      :body {:message "Task deleted!"}}))
+
+(defn complete-task [req]
+  (let [ds db/ds
+        {:keys [task-id]} (get-in req [:parameters :body])
+        selected (jdbc/execute-one! ds
+                                    ["SELECT completed FROM task WHERE id = ?" task-id]
+                                    {:builder-fn rs/as-unqualified-lower-maps})
+        completed (not (:completed selected))]
+    (jdbc/execute! ds
+                   ["UPDATE task SET completed = ? WHERE id = ?" completed task-id])
+    {:status 200
+     :body {:message (str "Task " task-id " completion toggled to " completed)}}))

@@ -73,6 +73,31 @@
                             (not= (:task/id task) task-id)) tasks)))
        (assoc :loading? false))))
 
+(rf/reg-event-fx
+ :tasks/complete-task
+ (fn [{:keys [db]} [_ task-id]]
+   {:http-xhrio {:method          :patch
+                 :uri             "/api/complete-task"
+                 :params          {:task-id task-id}
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:tasks/toggle-completed {:task-id task-id}]
+                 :on-failure      [:tasks/failed]}
+    :db (assoc db :loading? true)}))
+
+(rf/reg-event-db
+ :tasks/toggle-completed
+ (fn [db [_ {:keys [task-id]}]]
+   (-> db
+       (update :tasks
+               (fn [tasks]
+                 (mapv (fn [task]
+                         (if (= (:task/id task) task-id)
+                           (update task :task/completed not)
+                           task))
+                       tasks)))
+       (assoc :loading? false))))
+
 (rf/reg-sub
  :tasks/all-tasks
  (fn [db _] 
@@ -97,14 +122,21 @@
   [:button.delete {:type "button" 
             :on-click #(rf/dispatch [:tasks/delete-task task-id])}])
 
+(defn checkbox [task task-id]
+  [:input {:type "checkbox"
+           :checked (:task/completed task)
+           :on-change #(rf/dispatch [:tasks/complete-task task-id])}])
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
      [:ul.grid
       (for [task tasks]
-        ^{:key (:task/id task)} 
+        ^{:key (:task/id task)}
         [:li.is-flex {:id (:task/id task)}
-         (:task/description task) 
+         [:label.is-flex {:style {:gap "0.5rem"}}
+         [checkbox task (:task/id task)]
+          (:task/description task)]
          [delete-button (:task/id task)]])]]))
 
 (defn main-ui []
