@@ -44,9 +44,10 @@
     {:status 200
      :body {:message "Task deleted!"}}))
 
-(defn complete-task [req]
+(defn complete-task [req] 
+  (print "HELLO")
   (let [task (get-in req [:parameters :body :task-id])]
     (jdbc/execute! db/ds
-                   ["update task set completed = ? where id = ?" true task])
+                   ["update task set completed = true where id = ?" task])
     {:status 200
      :body {:message "Task completed!"}}))

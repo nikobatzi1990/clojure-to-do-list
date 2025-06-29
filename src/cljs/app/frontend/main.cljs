@@ -88,8 +88,7 @@
 (rf/reg-event-db
  :tasks/toggle-completed
  (fn [db [_ {:keys [task-id]}]]
-   (for [[key value](:tasks db)]
-     (print key value))))
+   task-id))
 
 (rf/reg-sub
  :tasks/all-tasks
@@ -115,6 +114,11 @@
   [:button.delete {:type "button" 
             :on-click #(rf/dispatch [:tasks/delete-task task-id])}])
 
+(defn checkbox [task task-id]
+  [:input {:type "checkbox"
+           :checked (:task/completed task)
+           :on-change #(rf/dispatch [:tasks/complete-task task-id])}])
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -123,9 +127,7 @@
         ^{:key (:task/id task)}
         [:li.is-flex {:id (:task/id task)}
          [:label.is-flex {:style {:gap "0.5rem"}}
-          [:input {:type "checkbox"
-                   :checked (:task/completed task)
-                   :on-change #(rf/dispatch [:tasks/complete-task (:task/id task)])}]
+         [checkbox task (:task/id task)]
           (:task/description task)]
          [delete-button (:task/id task)]])]]))
 
