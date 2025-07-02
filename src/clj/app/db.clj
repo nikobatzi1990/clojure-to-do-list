@@ -29,3 +29,7 @@
 
 (defn rollback-migration []
   (migratus/rollback config))
+
+(comment
+  (create-migration [""])
+  )
