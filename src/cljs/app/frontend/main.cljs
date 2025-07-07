@@ -69,9 +69,6 @@
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
-     ;; display loading on frontend with a loading ring/hourglass
-     ;; loading might be too quick on local, so add a delay in backend (Thread/sleep functions)
-     ;; don't forget to remove (Thread/sleep) when done testing
     :db (assoc db :loading? true)}))
 
 (rf/reg-sub
