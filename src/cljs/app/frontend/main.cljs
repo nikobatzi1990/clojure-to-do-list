@@ -110,7 +110,11 @@
 
 (defn loading []
   (let [loading @(rf/subscribe [:tasks/loading])] 
-    (when loading [:p "Loading..."])))
+    (when loading [:p "Loading..."]
+      ;; [:progress {:class "progress is-small is-primary" 
+      ;;             :max "100"} 
+      ;;  "Loading..."]
+          )))
 
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
@@ -127,9 +131,11 @@
 (defn main-ui []
   [:div.container
    [:h1.title "To-Do List"] 
-   [:div.level 
+   [:div.level
     [task-input]]
-   [tasks-ui]])
+   [loading]
+   [tasks-ui]
+   ])
 
 (defonce app-root
   (rdc/create-root (js/document.getElementById "app")))
