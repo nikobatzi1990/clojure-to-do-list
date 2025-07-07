@@ -58,16 +58,6 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
-(rf/reg-event-db
- :tasks/task-deleted
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (filterv (fn [task]
-                            (not= (:task/id task) task-id)) tasks)))
-       (assoc :loading? false))))
-
 ;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
@@ -79,24 +69,10 @@
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
-     ;; bonus - loading attribute is not currently being used anywhere
      ;; display loading on frontend with a loading ring/hourglass
      ;; loading might be too quick on local, so add a delay in backend (Thread/sleep functions)
      ;; don't forget to remove (Thread/sleep) when done testing
     :db (assoc db :loading? true)}))
-
-(rf/reg-event-db
- :tasks/toggle-completed
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (mapv (fn [task]
-                         (if (= (:task/id task) task-id)
-                           (update task :task/completed not)
-                           task))
-                       tasks))) 
-       (assoc :loading? false))))
 
 (rf/reg-sub
  :tasks/all-tasks
