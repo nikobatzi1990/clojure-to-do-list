@@ -43,7 +43,7 @@
                  :params          {:task task}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/task-saved]
+                 :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}}))
 
 (rf/reg-event-fx
@@ -59,7 +59,7 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/task-deleted {:task-id task-id}]
+                 :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
@@ -73,6 +73,10 @@
                             (not= (:task/id task) task-id)) tasks)))
        (assoc :loading? false))))
 
+;; remember to synchronize backend and frontend
+;; frontend should reflect whatever is in the backend db
+;; "best practice" isn't always best practice in the context of your app
+;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
  (fn [{:keys [db]} [_ task-id]]
@@ -81,8 +85,12 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/toggle-completed {:task-id task-id}]
+                 :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
+     ;; bonus - loading attribute is not currently being used anywhere
+     ;; display loading on frontend with a loading ring/hourglass
+     ;; loading might be too quick on local, so add a delay in backend (Thread/sleep functions)
+     ;;  don't forget to remove (Thread/sleep) when done testing
     :db (assoc db :loading? true)}))
 
 (rf/reg-event-db
@@ -95,7 +103,7 @@
                          (if (= (:task/id task) task-id)
                            (update task :task/completed not)
                            task))
-                       tasks)))
+                       tasks))) 
        (assoc :loading? false))))
 
 (rf/reg-sub
