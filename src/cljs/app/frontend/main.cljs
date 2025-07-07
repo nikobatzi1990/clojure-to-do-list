@@ -47,11 +47,6 @@
                  :on-failure      [:tasks/failed]}}))
 
 (rf/reg-event-fx
- :tasks/task-saved
- (fn []
-   (js/console.log "Task saved!")))
-
-(rf/reg-event-fx
  :tasks/delete-task
  (fn [{:keys [db]} [_ task-id]] 
    {:http-xhrio {:method          :delete
@@ -73,9 +68,6 @@
                             (not= (:task/id task) task-id)) tasks)))
        (assoc :loading? false))))
 
-;; remember to synchronize backend and frontend
-;; frontend should reflect whatever is in the backend db
-;; "best practice" isn't always best practice in the context of your app
 ;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
@@ -90,7 +82,7 @@
      ;; bonus - loading attribute is not currently being used anywhere
      ;; display loading on frontend with a loading ring/hourglass
      ;; loading might be too quick on local, so add a delay in backend (Thread/sleep functions)
-     ;;  don't forget to remove (Thread/sleep) when done testing
+     ;; don't forget to remove (Thread/sleep) when done testing
     :db (assoc db :loading? true)}))
 
 (rf/reg-event-db
@@ -110,6 +102,11 @@
  :tasks/all-tasks
  (fn [db _] 
    (get db :tasks [])))
+
+(rf/reg-sub
+ :tasks/loading
+ (fn [db _]
+   (get db :loading? [])))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -135,6 +132,10 @@
            :checked (:task/completed task)
            :on-change #(rf/dispatch [:tasks/complete-task task-id])}])
 
+(defn loading []
+  (let [loading @(rf/subscribe [:tasks/loading])] 
+    (when loading [:p "Loading..."])))
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -149,7 +150,7 @@
 
 (defn main-ui []
   [:div.container
-   [:h1.title "To-Do List"]
+   [:h1.title "To-Do List"] 
    [:div.level 
     [task-input]]
    [tasks-ui]])
