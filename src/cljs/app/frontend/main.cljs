@@ -47,11 +47,6 @@
                  :on-failure      [:tasks/failed]}}))
 
 (rf/reg-event-fx
- :tasks/task-saved
- (fn []
-   (js/console.log "Task saved!")))
-
-(rf/reg-event-fx
  :tasks/delete-task
  (fn [{:keys [db]} [_ task-id]] 
    {:http-xhrio {:method          :delete
@@ -63,19 +58,6 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
-(rf/reg-event-db
- :tasks/task-deleted
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (filterv (fn [task]
-                            (not= (:task/id task) task-id)) tasks)))
-       (assoc :loading? false))))
-
-;; remember to synchronize backend and frontend
-;; frontend should reflect whatever is in the backend db
-;; "best practice" isn't always best practice in the context of your app
 ;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
@@ -87,29 +69,17 @@
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
-     ;; bonus - loading attribute is not currently being used anywhere
-     ;; display loading on frontend with a loading ring/hourglass
-     ;; loading might be too quick on local, so add a delay in backend (Thread/sleep functions)
-     ;;  don't forget to remove (Thread/sleep) when done testing
     :db (assoc db :loading? true)}))
-
-(rf/reg-event-db
- :tasks/toggle-completed
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (mapv (fn [task]
-                         (if (= (:task/id task) task-id)
-                           (update task :task/completed not)
-                           task))
-                       tasks))) 
-       (assoc :loading? false))))
 
 (rf/reg-sub
  :tasks/all-tasks
  (fn [db _] 
    (get db :tasks [])))
+
+(rf/reg-sub
+ :tasks/loading
+ (fn [db _]
+   (get db :loading? [])))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -135,6 +105,14 @@
            :checked (:task/completed task)
            :on-change #(rf/dispatch [:tasks/complete-task task-id])}])
 
+(defn loading []
+  (let [loading @(rf/subscribe [:tasks/loading])] 
+    (when loading [:p "Loading..."]
+      ;; [:progress {:class "progress is-small is-primary" 
+      ;;             :max "100"} 
+      ;;  "Loading..."]
+          )))
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -149,10 +127,12 @@
 
 (defn main-ui []
   [:div.container
-   [:h1.title "To-Do List"]
-   [:div.level 
+   [:h1.title "To-Do List"] 
+   [:div.level
     [task-input]]
-   [tasks-ui]])
+   [loading]
+   [tasks-ui]
+   ])
 
 (defonce app-root
   (rdc/create-root (js/document.getElementById "app")))
