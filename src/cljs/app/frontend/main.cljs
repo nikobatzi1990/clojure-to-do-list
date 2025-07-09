@@ -58,7 +58,6 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
-;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
  (fn [{:keys [db]} [_ task-id]]
@@ -67,19 +66,47 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/get-task-list]
+                 :on-success      [:tasks/complete-success task-id]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
+(rf/reg-event-fx
+ :tasks/complete-success
+ (fn [{:keys [db]} [_ task-id]]
+   
+   (let [task (some #(when (= (:task/id %) task-id) %) (:tasks db))
+         completed? (:task/completed task)] 
+     
+     {:db (assoc db :loading? false)
+       :fx [(when (not completed?)
+              [:dispatch [:flash/set-message "Task completed!"]])
+            [:dispatch [:tasks/get-task-list]]]})))
+
+(rf/reg-event-fx
+ :flash/set-message
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc db :flash/message msg)
+    :fx [[:dispatch-later {:ms 2000 :dispatch [:flash/clear]}]]}))
+
+(rf/reg-event-db
+ :flash/clear
+ (fn [db _]
+   (dissoc db :flash/message)))
+
 (rf/reg-sub
  :tasks/all-tasks
- (fn [db _] 
+ (fn [db _]
    (get db :tasks [])))
 
 (rf/reg-sub
  :tasks/loading
  (fn [db _]
    (get db :loading? [])))
+
+(rf/reg-sub
+ :flash/message
+ (fn [db _]
+   (:flash/message db)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -113,6 +140,12 @@
       ;;  "Loading..."]
           )))
 
+(defn flash-message []
+  (let [msg @(rf/subscribe [:flash/message])]
+    (when msg
+      [:div {:class "bg-green-200 text-green-800 p-2 rounded"}
+       msg])))
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -131,6 +164,7 @@
    [:div.level
     [task-input]]
    [loading]
+   [flash-message]
    [tasks-ui]
    ])
 
