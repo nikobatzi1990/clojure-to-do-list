@@ -66,16 +66,21 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/complete-success]
+                 :on-success      [:tasks/complete-success task-id]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
 (rf/reg-event-fx
  :tasks/complete-success
- (fn [{:keys [db]}]
-   {:db (assoc db :loading? false)
-    :fx [[:dispatch [:flash/set-message "Task completed!"]]
-         [:dispatch [:tasks/get-task-list]]]}))
+ (fn [{:keys [db]} [_ task-id]]
+   
+   (let [task (some #(when (= (:task/id %) task-id) %) (:tasks db))
+         completed? (:task/completed task)] 
+     
+     {:db (assoc db :loading? false)
+       :fx [(when (not completed?)
+              [:dispatch [:flash/set-message "Task completed!"]])
+            [:dispatch [:tasks/get-task-list]]]})))
 
 (rf/reg-event-fx
  :flash/set-message
