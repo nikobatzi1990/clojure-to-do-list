@@ -23,6 +23,7 @@
                           [:script {:src "/js/main.js"}]]]))})
 
 (defn task-list [_req]
+  ;; (Thread/sleep 5000)
   (let [task-list
         (jdbc/execute! db/ds 
                        ["select * from task"]

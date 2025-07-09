@@ -43,13 +43,8 @@
                  :params          {:task task}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/task-saved]
+                 :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}}))
-
-(rf/reg-event-fx
- :tasks/task-saved
- (fn []
-   (js/console.log "Task saved!")))
 
 (rf/reg-event-fx
  :tasks/delete-task
@@ -59,19 +54,9 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/task-deleted {:task-id task-id}]
+                 :on-success      [:tasks/get-task-list]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
-
-(rf/reg-event-db
- :tasks/task-deleted
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (filterv (fn [task]
-                            (not= (:task/id task) task-id)) tasks)))
-       (assoc :loading? false))))
 
 (rf/reg-event-fx
  :tasks/complete-task
@@ -81,27 +66,47 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/toggle-completed {:task-id task-id}]
+                 :on-success      [:tasks/complete-success task-id]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
+(rf/reg-event-fx
+ :tasks/complete-success
+ (fn [{:keys [db]} [_ task-id]]
+   
+   (let [task (some #(when (= (:task/id %) task-id) %) (:tasks db))
+         completed? (:task/completed task)] 
+     
+     {:db (assoc db :loading? false)
+       :fx [(when (not completed?)
+              [:dispatch [:flash/set-message "Task completed!"]])
+            [:dispatch [:tasks/get-task-list]]]})))
+
+(rf/reg-event-fx
+ :flash/set-message
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc db :flash/message msg)
+    :fx [[:dispatch-later {:ms 2000 :dispatch [:flash/clear]}]]}))
+
 (rf/reg-event-db
- :tasks/toggle-completed
- (fn [db [_ {:keys [task-id]}]]
-   (-> db
-       (update :tasks
-               (fn [tasks]
-                 (mapv (fn [task]
-                         (if (= (:task/id task) task-id)
-                           (update task :task/completed not)
-                           task))
-                       tasks)))
-       (assoc :loading? false))))
+ :flash/clear
+ (fn [db _]
+   (dissoc db :flash/message)))
 
 (rf/reg-sub
  :tasks/all-tasks
- (fn [db _] 
+ (fn [db _]
    (get db :tasks [])))
+
+(rf/reg-sub
+ :tasks/loading
+ (fn [db _]
+   (get db :loading? [])))
+
+(rf/reg-sub
+ :flash/message
+ (fn [db _]
+   (:flash/message db)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -127,6 +132,20 @@
            :checked (:task/completed task)
            :on-change #(rf/dispatch [:tasks/complete-task task-id])}])
 
+(defn loading []
+  (let [loading @(rf/subscribe [:tasks/loading])] 
+    (when loading [:p "Loading..."]
+      ;; [:progress {:class "progress is-small is-primary" 
+      ;;             :max "100"} 
+      ;;  "Loading..."]
+          )))
+
+(defn flash-message []
+  (let [msg @(rf/subscribe [:flash/message])]
+    (when msg
+      [:div {:class "bg-green-200 text-green-800 p-2 rounded"}
+       msg])))
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -141,10 +160,13 @@
 
 (defn main-ui []
   [:div.container
-   [:h1.title "To-Do List"]
-   [:div.level 
+   [:h1.title "To-Do List"] 
+   [:div.level
     [task-input]]
-   [tasks-ui]])
+   [loading]
+   [flash-message]
+   [tasks-ui]
+   ])
 
 (defonce app-root
   (rdc/create-root (js/document.getElementById "app")))
