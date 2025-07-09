@@ -80,7 +80,13 @@
 (rf/reg-event-fx
  :flash/set-message
  (fn [{:keys [db]} [_ msg]]
-   {:db (assoc db :flash/message msg)}))
+   {:db (assoc db :flash/message msg)
+    :fx [[:dispatch-later {:ms 2000 :dispatch [:flash/clear]}]]}))
+
+(rf/reg-event-db
+ :flash/clear
+ (fn [db _]
+   (dissoc db :flash/message)))
 
 (rf/reg-sub
  :tasks/all-tasks
