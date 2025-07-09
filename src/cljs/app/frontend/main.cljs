@@ -58,7 +58,6 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
-;; add status update message to display on frontend on success
 (rf/reg-event-fx
  :tasks/complete-task
  (fn [{:keys [db]} [_ task-id]]
@@ -71,9 +70,21 @@
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
+(rf/reg-event-fx
+ :tasks/complete-success
+ (fn [{:keys [db]}]
+   {:db (assoc db :loading? false)
+    :fx [[:dispatch [:flash/set-message "Task completed!"]]
+         [:dispatch [:tasks/get-task-list]]]}))
+
+(rf/reg-event-fx
+ :flash/set-message
+ (fn [{:keys [db]} [_ msg]]
+   {:db (assoc db :flash/message msg)}))
+
 (rf/reg-sub
  :tasks/all-tasks
- (fn [db _] 
+ (fn [db _]
    (get db :tasks [])))
 
 (rf/reg-sub
