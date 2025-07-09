@@ -67,7 +67,7 @@
                  :params          {:task-id task-id}
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:tasks/get-task-list]
+                 :on-success      [:tasks/complete-success]
                  :on-failure      [:tasks/failed]}
     :db (assoc db :loading? true)}))
 
@@ -80,6 +80,11 @@
  :tasks/loading
  (fn [db _]
    (get db :loading? [])))
+
+(rf/reg-sub
+ :flash/message
+ (fn [db _]
+   (:flash/message db)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
@@ -113,6 +118,12 @@
       ;;  "Loading..."]
           )))
 
+(defn flash-message []
+  (let [msg @(rf/subscribe [:flash/message])]
+    (when msg
+      [:div {:class "bg-green-200 text-green-800 p-2 rounded"}
+       msg])))
+
 (defn tasks-ui []
   (let [tasks @(rf/subscribe [:tasks/all-tasks])]
     [:div {:class "is-flex"}
@@ -131,6 +142,7 @@
    [:div.level
     [task-input]]
    [loading]
+   [flash-message]
    [tasks-ui]
    ])
 
